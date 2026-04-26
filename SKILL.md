@@ -30,6 +30,15 @@ Use [references/prompts.md](references/prompts.md) as the prompt base.
 - If the environment uses a local cached copy, the user should update that local copy from the repository before expecting new behavior.
 - Repository source of truth: `https://github.com/foxbitcoo/moment-notes`
 
+## Update Action
+
+If the user asks to update `moment-notes`, the intended action is:
+1. Pull or fetch the latest skill files from `https://github.com/foxbitcoo/moment-notes`
+2. Sync the latest `SKILL.md`, `README.md`, `agents/openai.yaml`, and `references/prompts.md`
+3. Replace the local installed copy of the skill with those latest files
+
+If the host environment cannot perform remote sync by itself, it should instruct or trigger a repository refresh first, then update the local installed copy from that refreshed source.
+
 ## Triggering
 
 This skill can be activated in three equivalent ways:

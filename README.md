@@ -63,6 +63,8 @@ After install, restart Codex to load the new skill.
 中文：
 - 这个 skill 的最新版本以 GitHub 仓库为准：
   `https://github.com/foxbitcoo/moment-notes`
+- 如果用户的指令是“更新这个 moment-notes skill”，默认目标应该是：
+  从这个 GitHub 仓库拉取最新版本，再同步覆盖本地安装的 skill 文件
 - 如果你是通过 `git clone` 使用：
 
 ```bash
@@ -75,6 +77,8 @@ git pull origin main
 English:
 - The source of truth for this skill is the GitHub repository:
   `https://github.com/foxbitcoo/moment-notes`
+- If the user's intent is "update this moment-notes skill", the default action should be:
+  pull the latest version from this GitHub repository, then sync and overwrite the local installed skill files
 - If you use a cloned copy:
 
 ```bash
