@@ -16,9 +16,10 @@ This skill is image-first. When image input is present, the first output should 
 
 1. If multiple images are uploaded, treat them as separate jobs by default.
 2. For each image, read the photo and infer the scene context plus one dominant emotional line.
-3. Decide whether the main viewing orientation is landscape or portrait.
-4. Generate the annotated image first while preserving the original filter and visual style.
-5. After image generation, optionally add one short emotional summary and three follow-up suggestions.
+3. Scan the whole image for major visible details instead of limiting the generation to only a few named objects.
+4. Decide whether the main viewing orientation is landscape or portrait.
+5. Generate the annotated image first while preserving the original filter and visual style.
+6. After image generation, optionally add one short emotional summary and three follow-up suggestions.
 
 ## Prompt Source
 
@@ -57,6 +58,7 @@ Notes:
 - Never merge multiple uploaded images into one output unless the user explicitly asks for collage, merge, or composition.
 - Do not replace the first-generation step with a txt file, note file, or text-only response.
 - Keep the source image filter, color mood, and overall visual character intact; annotations should feel overlaid, not rebuilt from scratch.
+- Do not compress the image-generation prompt into a tiny fixed object list. The model should cover the main visible elements across the whole frame.
 
 ## Output Requirements
 
@@ -64,5 +66,6 @@ Notes:
 - Keep language short, conversational, and emotional.
 - Keep all local notes aligned with one emotional direction.
 - Keep text layout consistent with landscape or portrait viewing.
+- For detail-rich tabletop or daily-object scenes, prefer rich annotation density when it does not block readability.
 - Make the annotated image the first output when image generation is possible.
 - End with one summary sentence that emotionally responds to the image.
