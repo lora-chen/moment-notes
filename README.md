@@ -1,5 +1,7 @@
 # Moment Notes（此刻小记）
 
+[![skills.sh](https://skills.sh/b/foxbitcoo/moment-notes)](https://skills.sh/foxbitcoo/moment-notes)
+
 一句话描述：
 把照片里的“一个时刻”变成有情绪的轻注释，适合朋友圈和社交平台分享。
 
