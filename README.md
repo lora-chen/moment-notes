@@ -24,13 +24,48 @@ It turns a single image moment into lightweight hand-drawn notes with:
 
 ## 当前正式版 / Current Version
 
-当前正式提示词为 V6.2：主体优先 + 密度自适应 + 同图去重版。
+当前正式提示词为 V6.3：脚手架拆分 + QA 反思版。
 
-V6.2 保留第五版的“温柔情绪小记”方向，同时加入主体优先级、注释密度自适应、复杂背景可读性、专业装备识别和主体相关手绘符号，并补充“同图文案去重与改写”规则。它会先判断照片是单一主体、明显主次、集合主体还是专业集合主体，再决定写哪些对象、写多少、是否加场景相关的小手绘符号，并在同一张图里尽量避免重复动作词、重复形容词和重复句式。
+V6.3 保留 V6.2 的主体优先级、注释密度自适应、复杂背景可读性、专业装备识别、主体相关手绘符号和同图文案去重规则，同时把脚手架拆成可按需读取的 reference 资产。它会先判断照片情绪主线、主体类型、关键物品 list 和低优先级道具，再生成 overlay 策略；每张输入图默认只生成 1 张，生成后按 QA 清单检查，只有严重失败时才最多重绘 1 次。
 
-Current official prompt: V6.2, subject-priority, adaptive-density, and same-image copy de-duplication.
+Current official prompt: V6.3, scaffolded references and QA reflection.
 
-V6.2 keeps the gentle emotional-note style from Version 5 while adding subject priority, adaptive annotation density, readability protection, professional gear handling, subject-related doodle symbols, and same-image copy de-duplication. It first classifies the image as a single subject, clear hierarchy, collection subject, or professional collection, then decides what to annotate and how dense the notes should be, while reducing repeated wording inside the same image.
+V6.3 keeps V6.2's subject priority, adaptive annotation density, readability protection, professional gear handling, subject-related doodle symbols, and same-image copy de-duplication, then splits the workflow into reference assets. It diagnoses the emotional line, subject mode, key object list, and low-priority props before building an overlay strategy. Each input image gets one default generation; QA failures may trigger at most one retry.
+
+## V6.3 架构 / Architecture
+
+V6.3 不再依赖单一长提示词，而是一个轻量入口 + 多个可按需读取的 reference 节点。
+
+V6.3 no longer depends on one long prompt. It uses a lightweight entry point plus modular reference nodes that are read only when needed.
+
+```text
+SKILL.md
+  -> photo-diagnosis.md
+  -> annotation-patterns.md + style-dna.md
+  -> prompt-template.md
+  -> qa-checklist.md + bad-cases.md
+  -> issue-report-template.md
+```
+
+节点职责：
+
+- `photo-diagnosis.md`：先判断情绪主线、关系、主体模式、物品组和低优先级道具。
+- `annotation-patterns.md`：决定写多少、写哪里、哪些对象保持沉默、手绘符号如何服务关系。
+- `style-dna.md`：约束视觉气质，保护原图，只做白色手写层和轻量可读性处理。
+- `prompt-template.md`：把前面的诊断和策略组装成单张图片编辑提示词。
+- `qa-checklist.md` + `bad-cases.md`：生成后检查；严重失败时最多重绘一次。
+- `issue-report-template.md`：当用户说 `report to issue:` 时，上报节点 meta，方便回溯。
+
+核心链路：
+
+```text
+Photo Diagnosis
+  -> Annotation Strategy
+  -> Prompt Assembly
+  -> Single Generation
+  -> QA Reflection
+  -> Issue Meta
+```
 
 ## 通用安装（IDE / Agent） / Universal Install (IDE / Agent)
 
@@ -137,23 +172,30 @@ Prefix notes (OpenClaw/Codex):
 中文：
 - 用户上传图片后，默认先直接生成注释图，再补充解释
 - 多张图片默认逐张独立生成，不拼成一张
+- 每张输入图默认只生成 1 张结果
 - 默认使用“基于上传图片编辑”的能力，在原图上只叠加涂鸦层
 - 必须保留原图滤镜、色调、构图、物体位置、裁切比例和氛围
 - 如果宿主工具只有纯文生图 `GenerateImage`，不能编辑输入图，请先说明限制，不要把重绘图当成原图叠加效果
 - 当前正式版会保留一条温柔主线，同时允许细节服务同一张图的主情绪
-- V6.2 会优先判断主体类型，避免低优先级道具抢戏；专业装备图会更认真识别关键物件
-- V6.2 可以在主体明确时加入 1-2 个强相关小手绘符号，例如山峰、爪印、热气或路线线条
-- V6.2 会在同一张图里尽量做措辞去重，减少重复动词、重复形容词和重复句式
+- V6.3 会先判断图片情绪主线、关系、主体类型、关键物品 list 和低优先级道具
+- V6.3 会先形成 overlay 策略，再进入单张图片编辑提示词
+- V6.3 会在生成后按 QA 清单检查；只有严重失败时才最多重绘 1 次
+- V6.3 会优先判断主体类型，避免低优先级道具抢戏；专业装备图会更认真识别关键物件
+- V6.3 可以在主体明确时加入 1-2 个强相关小手绘符号，例如山峰、爪印、热气或路线线条
+- V6.3 会在同一张图里尽量做措辞去重，减少重复动词、重复形容词和重复句式
 - 生成后的补充信息是：1 句情绪总结 + 3 个后续建议
 
 English:
 - When image input is present, the skill should generate the annotated image first, then explain.
 - Multiple uploaded images should be processed independently by default, not merged.
+- Each input image gets exactly one default result.
 - Use image editing based on the uploaded image; only overlay the doodle layer on the original photo.
 - Preserve the original filter, color mood, composition, object positions, crop ratio, and atmosphere.
 - If the host only provides pure text-to-image `GenerateImage` and cannot edit the uploaded image, explain that limitation instead of presenting a recreated image as an original-photo overlay.
 - The current official version keeps one gentle emotional line while adapting subject priority and annotation density.
-- V6.2 avoids letting low-priority props take over, handles professional gear more carefully, may add 1-2 scene-relevant doodle symbols when the subject is clear, and reduces repeated wording inside the same image.
+- V6.3 diagnoses the emotional line, relationship, subject mode, key object list, and low-priority props before building an overlay strategy.
+- V6.3 generates one result per input image by default, then runs QA and retries at most once only for serious failures.
+- V6.3 avoids letting low-priority props take over, handles professional gear more carefully, may add 1-2 scene-relevant doodle symbols when the subject is clear, and reduces repeated wording inside the same image.
 - Post-generation add-ons are: one emotional summary line and three follow-up suggestions.
 
 ## 能力说明 / What It Does
@@ -174,20 +216,70 @@ English:
 
 ## 提示词位置 / Prompt Source
 
-核心提示词在：
-Core prompt templates are in:
+核心提示词已拆成多个 reference 资产：
+Core prompt templates are split into reference assets:
 
-- `references/prompts.md`
+- `references/style-dna.md`：视觉 DNA、原图保护、白色手写层、可读性。
+- `references/photo-diagnosis.md`：情绪判断、主体类型、物品优先级、物品 list。
+- `references/annotation-patterns.md`：注释密度、文案去重、场景偏置、手绘符号。
+- `references/prompt-template.md`：单张图片编辑提示词模板。
+- `references/qa-checklist.md`：生成后检查和最多一次重绘规则。
+- `references/bad-cases.md`：明确禁忌和失败模式。
+- `references/issue-report-template.md`：`report to issue` 的节点信息上报模板。
+- `references/v6.3-rule-map.md`：V6.3 收敛规则表，用于测试验收和版本对比。
+- `references/prompts.md`：兼容旧安装路径的索引文件。
+
+## 示例资产 / Example Assets
+
+`examples/` 和 `assets/examples/` 只用于低频质量校准，不进入默认生成路径。
+
+`examples/` and `assets/examples/` are calibration assets only. They are not part of the default generation path.
+
+示例可以帮助模型理解：
+
+- 什么是关系判断，例如人和宠物互动，而不是“人 + 狗 + 草地”
+- 什么是场景状态判断，例如咖啡撒了需要安慰，而不是“杯子 + 键盘 + 污渍”
+- 什么是集合主体，例如装备平铺本身就是主角，需要形成“阅兵感”
+- 什么是积极情绪传递，例如风筝、公园、天空、风和坐着看的人共同构成向上的感觉
+
+示例不能用于：
+
+- 照抄构图
+- 照抄物件
+- 照抄注释文案
+- 照抄箭头、边框、飞行线、爱心、星星等手绘符号
+- 替代当前照片的重新判断
+
+不要把未审核的私人照片、测试集、坏例截图或本地输出放进公开示例目录。只有明确确认可公开的原图 / 成品图，才可以进入 `assets/examples/`。
+
+当前正例说明在 `examples/positive-cases.md`。当前已放入公开资产的正例图在 `assets/examples/`。
 
 ## 仓库结构 / Repository Structure
 
 ```text
 moment-notes/
+  .gitattributes
+  .gitignore
   SKILL.md
   VERSION
   agents/openai.yaml
-  references/prompts.md
+  assets/examples/README.md
+  assets/examples/positive-03-hiking-gear-roll-call.jpg
+  assets/examples/positive-04-park-kites-uplift.jpg
+  examples/positive-cases.md
+  examples/README.md
+  hooks/session-start-update.example.json
   README.md
+  SECURITY.md
+  references/annotation-patterns.md
+  references/bad-cases.md
+  references/photo-diagnosis.md
+  references/issue-report-template.md
+  references/prompt-template.md
+  references/prompts.md
+  references/qa-checklist.md
+  references/style-dna.md
+  references/v6.3-rule-map.md
 ```
 
 ## 备注 / Notes
@@ -208,9 +300,11 @@ moment-notes/
 - 原图是什么场景，例如宠物、美食、街景、装备平铺
 - 你希望这张图被理解成什么情绪主线
 - 实际结果哪里跑偏了
+- 是否原图被重绘、裁切、换风格或改变物体位置
 - 哪个对象不该被重点标注，或哪个主体应该更优先
-- 是否出现文案重复、句式重复、看图说话、低优先级道具抢戏等问题
+- 是否出现文案重复、句式重复、看图说话、注释太满、低优先级道具抢戏、专业名词乱认等问题
 - 使用的是哪个版本
+- V6.3 节点信息：情绪诊断、关系判断、主体模式、物品优先级、注释策略、prompt 模板、QA 失败项、bad-case IDs、是否重绘
 - 可公开的截图或文字描述
 
 如果你在支持 GitHub issue 创建的代理环境中使用这个 skill，也可以直接说：
@@ -219,4 +313,12 @@ moment-notes/
 report to issue: 这里写你的问题和评论
 ```
 
-skill 会整理本次请求、生成结果摘要和你的评论，并在宿主环境支持时尝试提交到本仓库 Issue；如果当前环境不支持直接创建 issue，则会给出可手动提交的 issue 草稿。
+skill 会整理本次请求、生成结果摘要、你的评论，以及 V6.3 工作流节点 meta 信息，并在宿主环境支持时尝试提交到本仓库 Issue；如果当前环境不支持直接创建 issue，则会给出可手动提交的 issue 草稿。没有被当前宿主记录到的信息会标注为 `not captured`，不会临时编造。
+
+节点化 issue 草稿会尽量包含：
+
+- Photo Diagnosis：情绪主线、关系、主体模式、物品组、低优先级道具
+- Annotation Strategy：注释密度、局部注释意图、结构标记、涂鸦意图
+- Prompt Assembly：使用的提示词模板和关键约束
+- QA Reflection：失败的 QA 项、bad-case IDs、是否触发最多一次重绘
+- Example Calibration：如果参考了正例，只记录判断方式，不复制示例内容

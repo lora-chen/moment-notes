@@ -2,9 +2,37 @@
 Thumbs.db
 *.tmp
 TEST_WRITE.txt
+
+# Never publish local auth, machine restore snapshots, or environment secrets.
+auth.json
+config.toml
+config.toml.txt
+env_vars_snapshot.ps1
+*.env
+.env
+.env.*
+*TOKEN*
+*token*
+*SECRET*
+*secret*
+*KEY*
+*key*
+KINGSOFT_DOCS_TOKEN*
+
+# Private handoff and local discussion material.
+handoff_*/
+machine_context/
 AI涂鸦项目文档.md
 AI涂鸦迭代记录.md
 AI涂鸦子功能设计.md
 AI涂鸦技能发布方案.md
 和GPT讨论（截至到0426）.md
 提示词.md
+
+# Private test assets and generated local output.
+moment notes测试集/
+preview_runs/
+preview_ascii/
+preview_out/
+__pycache__/
+.pytest_cache/
